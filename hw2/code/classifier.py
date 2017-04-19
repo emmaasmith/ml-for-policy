@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Classifiers
 # from sklearn.linear_model import LogisticRegression
-# from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import roc_curve, auc, classification_report, confusion_matrix
@@ -22,9 +22,12 @@ def bool_threshold(data, val):
 	return test
 
 
-def classifier(train, test, features):
+def classifier(train, test, features, model="rf"):
 	# Define classifier
-	classifier = KNeighborsClassifier(n_neighbors=13)
+	if model == "knn":
+		classifier = KNeighborsClassifier(n_neighbors=13)
+	else:
+		classifier = RandomForestClassifier()
 
 	# Fit classifier to training data
 	classifier.fit(train[features], train.serious_dlqin2yrs)
@@ -37,6 +40,7 @@ def classifier(train, test, features):
 
 	# Plot how many are predicted to be true
 	pl.hist(predictions_true)
+	pl.show()
 
 	return predictions_true
 
@@ -87,7 +91,7 @@ def evaluate_classifier(test, probabilities):
 	best_a = 0
 	best_i = 0
 
-	# Test 10 different thresholds
+	# Test 100 different thresholds
 	for i in range(1, 100):
 		i2 = 1.0 - (.01 * float(i))
 		print "\n####################\nTrying ", i2
@@ -99,8 +103,8 @@ def evaluate_classifier(test, probabilities):
 			best_a = accuracy
 
 	# Choose the best performing threshold, according to AUC
-		print "\n####################\n####################\nBest individual accuracy:"
-	print best_a
+	print "\n####################\n####################\nBest individual accuracy:"
+	print best_i, " produced ", best_a
 	bool_probabilities = bool_threshold(probabilities, best_i)
 	one_evaluation(test, bool_probabilities)
 

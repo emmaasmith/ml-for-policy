@@ -51,6 +51,7 @@ def run(df, remove_outliers, plot, continuous):
 
 		print "\nRemoved outliers: from ", old.shape, " to ", df.shape
 
+
 	##############################
 	##### Explore data
 	##############################
@@ -97,15 +98,13 @@ def main():
 		"number_of_times90_days_late", "debt_ratio", "monthly_income", 
 		"number_of_open_credit_lines_and_loans", "number_real_estate_loans_or_lines"]
 
-	train = run(df.iloc[:split,], False, True, continuous)
+	train = run(df.iloc[:split,], False, False, continuous)
 	test = run(df.iloc[split:,], False, False, continuous)
 
 	features = ["bucket_debt_ratio", "dummy_90days_1", "bucket_rev"]
 
 	probabilities = classifier(train, test, features)
 	evaluate_classifier(test, probabilities)
-
-	pl.show()
 
 
 main()
