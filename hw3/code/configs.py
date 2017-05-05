@@ -18,7 +18,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Define the configuration settings of the data file, variables, plotting
 def config_data():
-    filepath = "../data/credit-data.csv" 
+    filepath = "data/credit-data.csv" 
     # y variable
     yvar = "serious_dlqin2yrs"
     # all continuous x vars
@@ -74,7 +74,7 @@ def config_classifiers(size=0):
     }
 
     configs = { 
-        'SVM': { 'penalty': ['l1','l2'], 'C' :[0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10]},
+        'SVM': { 'penalty': ['l1','l2'], 'C' :[0.00001, 0.001, 0.1, 1, 10]},
         'LR':  { 'penalty': ['l1','l2'], 'C': [0.00001, 0.001, 0.1, 1, 10]},
         'KNN': { 'n_neighbors': [1,5,10,25,50,100], 'weights': ['uniform','distance'],
                  'algorithm': ['auto','ball_tree','kd_tree']},
@@ -90,7 +90,7 @@ def config_classifiers(size=0):
     }
 
     configs_large = { 
-        'SVM': { 'C' :[0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10],'kernel':['linear']},
+        'SVM': { 'penalty': ['l1','l2'], 'C' :[0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10]},
         'LR':  { 'penalty': ['l1','l2'], 'C': [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10]},
         'KNN': { 'n_neighbors': [1, 5, 10, 25, 50, 100],'weights': ['uniform','distance'],
                  'algorithm': ['auto','ball_tree','kd_tree']},

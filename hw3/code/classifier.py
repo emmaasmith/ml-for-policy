@@ -53,16 +53,14 @@ def classifier(train, test, features, model="rf"):
 
 
 # Run one evaluation
-# data: df of data
+# test_ys: data
 # bool_probabilities: output from bool_threshold()
 def one_evaluation(test_ys, bool_probabilities):
     # 2x2 +- matrix
-    print "\nActual vs. predicted matrix:"
     ys = pd.Series(list(test_ys))
     ps = pd.Series(bool_probabilities)
     cross = pd.crosstab(ys, ps, 
         rownames=["Actual"], colnames=["Predicted"])
-    print cross
     if np.unique(cross).size != 4:
         return
 
@@ -75,9 +73,14 @@ def one_evaluation(test_ys, bool_probabilities):
         accuracy = float(accuracy) / float(div)
     print "\nAccuracy: ", accuracy
 
+    # Print 2x2
+    print "\nActual vs. predicted matrix:"
+    print cross
+
     # Precision and recall
     print "\nMetrics:"
     print classification_report(ys, bool_probabilities, labels=[0, 1])
+
     return accuracy
 
 
@@ -90,9 +93,17 @@ def evaluate_at_k(data, probs, k):
     threshold = int((k / 100.0) * len(probs))
     bool_probabilities = [1 if x < threshold else 0 for x in range(len(probs))]
     
+    # Get precision, recall, f1, accuracy
     precision = precision_score(data, bool_probabilities)
+    print "Precision: ", precision
+    recall = recall_score(data, bool_probabilities)
+    print "Recall: ", recall
+    f1 = f1_score(data, bool_probabilities)
+    print "F1: ", f1
     accuracy = one_evaluation(data, bool_probabilities)
-    return precision, accuracy
+
+
+    return precision, accuracy, recall, f1
 
 # Plot the ROC
 # The below function is taken from https://github.com/yhat/DataGotham2013/ and
@@ -113,10 +124,30 @@ def plot_roc(test, name, shortname, probs, plot=2):
         if plot == 1:
             pl.show()
         else:
-            pl.savefig("../data/results/"+shortname+".png", bbox_inches='tight')
+            pl.savefig("data/results/"+shortname+".png", bbox_inches='tight')
     return roc_auc
 
 
+# Plot the precision-recall curve
+# test_ys: data
+# bool_probabilities: output from bool_threshold()
+def plot_pr(test_ys, name, shortname, bool_probabilities):
+    ys = pd.Series(list(test_ys))
+    ps = pd.Series(bool_probabilities)
+    precisions, recalls, thresholds = precision_recall_curve(ys, ps, pos_label=1)
+
+    plt.clf()
+    plt.plot(recalls, precisions, color='navy', label='Precision-Recall curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.title(name)
+    plt.legend(loc="lower left")
+    pl.savefig("data/results/"+shortname+".png", bbox_inches='tight')
+
+
+# DEPRECATED:
 # Test 100 thresholds and choose the one that performs best via AUC
 # data: df of data
 # probabilities: classifier from classifier()

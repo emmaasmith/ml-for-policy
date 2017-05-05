@@ -21,6 +21,7 @@ from classifier import classifier
 from classifier import evaluate_classifier
 from classifier import evaluate_at_k
 from classifier import plot_roc
+from classifier import plot_pr
 from configs import config_data
 from configs import config_classifiers
 
@@ -49,6 +50,7 @@ from sklearn.preprocessing import StandardScaler
 # plot: bool to show plots
 # continuous: string[] of column names
 # yvar: string yvar
+# missing_solution: how to treat missing vars
 def run(df, remove_outliers, plot, continuous, yvar, missing_solution):
     ##############################
     ## Read / load data 
@@ -117,7 +119,11 @@ def run(df, remove_outliers, plot, continuous, yvar, missing_solution):
 # models: array of models
 # features: string[] of features
 # yvar: string of outcome variable
+# size: size of graph built
 def run_models(data, models, features, yvar, size):
+    # "Global" graph label counter
+    z=0
+
     # Split into train and test sets
     train, test, y_train, y_test = train_test_split(data[features], data[yvar], test_size=0.1, random_state=33)
 
@@ -126,7 +132,7 @@ def run_models(data, models, features, yvar, size):
 
     # create results df
     results =  pd.DataFrame(columns=('model_type','clf', 'parameters', 'auc-roc', 
-        'p_5', 'a_5', 'p_10', 'a_10', 'p_20', 'a_20'))
+        'p_5', 'a_5', 'r_5', 'f_5', 'p_10', 'a_10', 'r_10', 'f_10', 'p_20', 'a_20', 'r_20', 'f_20'))
 
     # For each selected classifier model, take the (index, classifier)
     for i, clf in enumerate([classifiers[m] for m in models]):
@@ -148,21 +154,23 @@ def run_models(data, models, features, yvar, size):
                 y_pred_probs_sorted, y_test_sorted = zip(*sorted(zip(y_pred_probs, y_test), reverse=True))
                 
                 # Run precision and accuracy
-                p5, a5 = evaluate_at_k(y_test_sorted, y_pred_probs_sorted, 5.0)
-                p10, a10 = evaluate_at_k(y_test_sorted, y_pred_probs_sorted, 10.0)
-                p20, a20 = evaluate_at_k(y_test_sorted, y_pred_probs_sorted, 20.0)
+                p5, a5, r5, f5 = evaluate_at_k(y_test_sorted, y_pred_probs_sorted, 5.0)
+                p10, a10, r10, f10 = evaluate_at_k(y_test_sorted, y_pred_probs_sorted, 10.0)
+                p20, a20, r20, f20 = evaluate_at_k(y_test_sorted, y_pred_probs_sorted, 20.0)
 
                 # Add to results df, indexing by growing len:
                 results.loc[len(results)] = [models[i], # model name
                                             clf, # classifier with parameters
                                             p, # parameter
                                             roc_auc_score(y_test, y_pred_probs), # AUC score
-                                            p5, a5, # precision/accuracy at k=5
-                                            p10, a10, # precision/accuracy at k=10
-                                            p20, a20] # precision/accuracy at k=20
+                                            p5, a5, r5, f5, # precision/accuracy at k=5
+                                            p10, a10, r10, f10, # precision/accuracy at k=10
+                                            p20, a20, r20, f20] # precision/accuracy at k=20
 
                 # Plot
-                plot_roc(y_test, str(clf), str(i)+models[i], y_pred_probs)
+                # plot_roc(y_test, str(clf), str(z)+"_ROC_"+models[i], y_pred_probs)
+                # plot_pr(y_test, str(clf), str(z)+"_PR_"+models[i], y_pred_probs)
+                z+=1
 
             except IndexError, e:
                 print 'Error: ',e
@@ -187,7 +195,7 @@ def main():
     matrix = run_models(df, models, features, yvar, size)
 
     # Export results
-    matrix.to_csv('../data/results/results.csv', index=False)
+    matrix.to_csv('data/results/results.csv', index=False)
 
 
 if __name__ == '__main__':
