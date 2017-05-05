@@ -141,6 +141,7 @@ def run_models(data, models, features, yvar, size):
         # try/except with ParameterGrid
         for p in ParameterGrid(settings):
             try:
+                print str(clf)
                 # Configure this classifier with a pointer to the setting
                 clf.set_params(**p)
                 # Fit classifier to training data
