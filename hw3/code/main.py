@@ -168,8 +168,8 @@ def run_models(data, models, features, yvar, size):
                                             p20, a20, r20, f20] # precision/accuracy at k=20
 
                 # Plot
-                # plot_roc(y_test, str(clf), str(z)+"_ROC_"+models[i], y_pred_probs)
-                # plot_pr(y_test, str(clf), str(z)+"_PR_"+models[i], y_pred_probs)
+                plot_roc(y_test, str(clf), str(z)+"_ROC_"+models[i], y_pred_probs)
+                plot_pr(y_test, str(clf), str(z)+"_PR_"+models[i], y_pred_probs)
                 z+=1
 
             except IndexError, e:
